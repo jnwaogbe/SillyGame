@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,7 +18,9 @@ import java.util.Queue;
 public class GameView extends View {
 
     int canvasWidth, canvasHeight;
+    int scoreNumber;
     Paint myColor;
+    Paint scoreColor;
 
     public GameObject enemy, otherEnemy;
 
@@ -29,17 +32,21 @@ public class GameView extends View {
 
     Queue<GameObject> toBeDrawn = new LinkedList<>();
 
-    interface CollisionListener {
-        void collidedWithEnemy();
-        void collidedWithBall();
-    }
 
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         this.context = context;
+
         myColor = new Paint();
         myColor.setColor(Color.BLUE);
+
+        scoreColor = new Paint();
+        scoreColor.setColor(Color.BLACK);
+        scoreColor.setTextSize(100);
+
+        scoreNumber = 0;
+
 
         enemy = new GameObject(0, 0, 80, Color.RED, 20, null) {
 
@@ -83,6 +90,7 @@ public class GameView extends View {
                 } else {
                     xDirection = getDx();
                     yDirection = getDy();
+
                 }
 
 
@@ -168,7 +176,7 @@ public class GameView extends View {
 
         values = ((Rotatable) context).getRotationInfo();
 
-
+        drawScoreBoard(canvas);
         drawSelf(canvas, values);
 
     }
@@ -192,12 +200,16 @@ public class GameView extends View {
         myDx = (int) (Math.abs(values[2]) * multiplier);
 
         if (values[1] < 0) {
-            if (myY + mySize - (int) (Math.abs(values[1]) * multiplier) > 0) {
+            if (myY + (int) (Math.abs(values[1]) * multiplier) + mySize > 0) {
                 myY = myY + (int) (Math.abs(values[1]) * multiplier);
+            } else {
+                myY = 0;
             }
         } else {
-            if (myY - (int) (Math.abs(values[1]) * multiplier) + mySize < canvasHeight) {
+            if (myY - (int) (Math.abs(values[1]) * multiplier) - mySize < canvasHeight) {
                 myY = myY - (int) (Math.abs(values[1]) * multiplier);
+            } else {
+                myY = canvasHeight;
             }
         }
 
@@ -225,6 +237,11 @@ public class GameView extends View {
                 , object.color);
     }
 
+    private void drawScoreBoard(Canvas canvas) {
+        canvas.drawText(scoreNumber + "", (canvasWidth / 2) - 15, 150, scoreColor);
+
+    }
+
 
     abstract class GameObject {
         int x;
@@ -235,7 +252,6 @@ public class GameView extends View {
 
         Paint color;
         private ObjectThread thread;
-        private List<CollisionListener> listeners = new ArrayList<CollisionListener>();
 
         GameObject(int x, int y, int size, int color, int delay, Object data) {
             this.x = x;
@@ -317,6 +333,9 @@ public class GameView extends View {
                         setDy(0);
                     }
                 }
+
+                scoreNumber++;
+
                 return 1;
             }
             return 0;

@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements GameView.Rotatable {
 
@@ -75,4 +76,5 @@ public class MainActivity extends AppCompatActivity implements GameView.Rotatabl
         super.onDestroy();
         sensorManager.unregisterListener(sensorEventListener);
     }
+
 }
